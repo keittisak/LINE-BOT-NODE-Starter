@@ -1,4 +1,5 @@
 const line = require('../../../config/line');
+const Promise = require('es6-promise').Promise;
 
 exports.callback = function(req, res){
     // register a webhook handler with middleware
