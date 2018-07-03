@@ -24,5 +24,7 @@ module.exports = ()=>{
     app.use('/api/v1', v1);
     app.use('/', v1);
 
+    app.use('/', express.static('public'))
+
     return app;
 };
