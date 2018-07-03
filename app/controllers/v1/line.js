@@ -16,11 +16,11 @@ exports.send = (req, res)=>{
     console.log(req.body);
     // recieve message from app and send to line
     Promise
-    .all(req.body.map(sendMessageHandleEvent))
-    .then((result) => res.json(result))
-    .catch((err) => {
-        console.error(err);
-        res.status(500).end();
+        .all(req.body.map(sendMessageHandleEvent))
+        .then((result) => res.json(result))
+        .catch((err) => {
+            console.error(err);
+            res.status(500).end();
 });
 }
 
