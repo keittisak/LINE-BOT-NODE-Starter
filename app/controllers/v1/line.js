@@ -14,9 +14,10 @@ exports.recieve = (req, res)=>{
 
 exports.send = (req, res)=>{
     console.log(req.body);
+    data = [req.body];
     // recieve message from app and send to line
     Promise
-        .all(req.body.map(sendMessageHandleEvent))
+        .all(data.map(sendMessageHandleEvent))
         .then((result) => res.json(result))
         .catch((err) => {
             console.error(err);
