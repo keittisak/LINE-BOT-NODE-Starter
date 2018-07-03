@@ -46,7 +46,10 @@ function recieveMessageHandleEvent(data) {
         .where('channel', '==', 'line')
         .get()
         .then(snapshot => {
+            line.client.getProfile(data.source.userId).then((profile)=>{ console.log(profile)})
             if (snapshot.size === 0) {
+                //get profile from line
+
                 //create new user
                 var _data = {
                     channel: 'line',
