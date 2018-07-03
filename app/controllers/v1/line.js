@@ -41,10 +41,10 @@ function replyMessageHandleEvent(data) {
 
 // event handler
 function sendMessageHandleEvent(data) {
-    console.log(data.userId);
-    console.log(data.type);
-    console.log(data.msg);
+    // console.log(data.userId);
+    // console.log(data.type);
+    // console.log(data.msg);
 
     // use push API
-    return line.client.pushMessage(data.userId, { type: "text", text: data.msg });
+    return line.client.pushMessage(data.userId, { type: data.type, text: data.msg });
 }
