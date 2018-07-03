@@ -1,5 +1,6 @@
 const line = require('../../../config/line');
-const db = require('../../../config/firebase');
+const firebase = require('../../../config/firebase');
+const db = firebase.firestore;
 
 exports.recieve = (req, res)=>{
     console.log(req.body.events);
@@ -38,7 +39,6 @@ function recieveMessageHandleEvent(data) {
 
     var data = {
         channel: 'line',
-        displayName: 'no name',
         id: event.source.userId
     };
     return userRef.add(data);
