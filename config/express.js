@@ -1,7 +1,7 @@
 module.exports = ()=>{
     const express = require('express');
     const bodyParser = require('body-parser');
-    const line = require('../../../config/line');
+    const line = require('./line');
     
     // create Express app
     // about Express itself: https://expressjs.com/
