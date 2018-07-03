@@ -1,10 +1,11 @@
 const line = require('../../../config/line');
+const db = require('../../../config/firebase').firestore();
 
 exports.recieve = (req, res)=>{
     console.log(req.body.events);
     // recieve message from line and save to firestore
     Promise
-        .all(req.body.events.map(replyMessageHandleEvent))
+        .all(req.body.events.map(recieveMessageHandleEvent))
         .then((result) => res.json(result))
         .catch((err) => {
             console.error(err);
@@ -22,21 +23,32 @@ exports.send = (req, res)=>{
         .catch((err) => {
             console.error(err);
             res.status(500).end();
-});
+    });
 }
 
 // event handler
-function replyMessageHandleEvent(data) {
+function recieveMessageHandleEvent(data) {
     if (data.type !== 'message' || data.message.type !== 'text') {
       // ignore non-text-message event
       return Promise.resolve(null);
     }
+    
+    //save data to firestore
+    var userRef = db.collection('users');
+
+    var data = {
+        channel: 'line',
+        displayName: 'no name',
+        id: event.source.userId
+    };
+    return userRef.add(data);
+
+
+    // // create a echoing text message
+    // const echo = { type: 'text', text: data.message.text };
   
-    // create a echoing text message
-    const echo = { type: 'text', text: data.message.text };
-  
-    // use reply API
-    return line.client.replyMessage(data.replyToken, echo);
+    // // use reply API
+    // return line.client.replyMessage(data.replyToken, echo);
 }
 
 // event handler
