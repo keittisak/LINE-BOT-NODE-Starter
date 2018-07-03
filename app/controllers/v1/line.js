@@ -46,5 +46,5 @@ function sendMessageHandleEvent(data) {
     console.log(data.msg);
 
     // use push API
-    return line.client.pushMessage(data.userId, { type: data.type, text: data.msg });
+    return line.client.pushMessage(data.userId, { type: "text", text: data.msg });
 }
