@@ -1,4 +1,4 @@
-module.exports = function(){
+module.exports = ()=>{
     const express = require('express');
     
     // create Express app

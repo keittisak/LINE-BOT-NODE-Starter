@@ -1,6 +1,6 @@
 const line = require('../../../config/line');
 
-exports.callback = function(req, res){
+exports.callback = (req, res)=>{
     // register a webhook handler with middleware
     // about the middleware, please refer to doc
     console.log(req.body.events);
@@ -13,6 +13,8 @@ exports.callback = function(req, res){
             res.status(500).end();
     });
 };
+
+
 
 // event handler
 function handleEvent(event) {
