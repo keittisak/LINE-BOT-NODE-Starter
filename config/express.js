@@ -22,7 +22,7 @@ module.exports = ()=>{
     // require('../app/routes/v1/facebook')(v1);
 
     app.use('/api/v1', v1);
-    app.use('/', v1);
+    // app.use('/', v1);
 
     app.use('/', express.static('public'))
 
