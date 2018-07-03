@@ -39,7 +39,7 @@ function recieveMessageHandleEvent(data) {
 
     var data = {
         channel: 'line',
-        id: event.source.userId
+        id: data.source.userId
     };
     return userRef.add(data);
 
