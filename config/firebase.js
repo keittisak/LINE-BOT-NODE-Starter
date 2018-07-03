@@ -7,5 +7,5 @@ module.exports = ()=>{
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
     });
-    return admin;
+    return admin.firestore();
 };

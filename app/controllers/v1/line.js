@@ -1,5 +1,5 @@
 const line = require('../../../config/line');
-const db = require('../../../config/firebase').firestore();
+const db = require('../../../config/firebase');
 
 exports.recieve = (req, res)=>{
     console.log(req.body.events);
