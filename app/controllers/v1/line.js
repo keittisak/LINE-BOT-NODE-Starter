@@ -55,7 +55,7 @@ function recieveMessageHandleEvent(data) {
                 return userRef
                     .add(_data)
                     .then(ref => {
-                        // console.log(ref)
+                        console.log(ref.id)
                         //update profile
                         line.client.getProfile(data.source.userId).then((profile)=>{ 
                             console.log(profile)
