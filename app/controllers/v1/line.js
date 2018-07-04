@@ -101,8 +101,8 @@ function recieveMessageHandleEvent(data) {
                             .then(ref => { 
                                 // console.log(ref)
                                 console.log('return');
-                                console.log({"id": ref.id, "data": data})
-                                return {"id": ref.id, "data": data};
+                                console.log({"id": ref.id, "data": ref.data()})
+                                return {"id": ref.id, "data": ref.data()};
                             })
                     }else{
                         console.log('get previous conversation')
