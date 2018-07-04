@@ -60,16 +60,17 @@ function recieveMessageHandleEvent(data) {
                             created: Date.now(),
                             users: [currentUser, ref.id],
                             messages: []
-                    })
-                    .then(ref => { 
-                        line.client.getProfile(data.source.userId).then((profile)=>{ 
-                            console.log(profile)
-                            console.log(ref.id)
-                            userRef.doc(ref.id).update({
-                                displayName: profile.displayName,
-                                pictureUrl: profile.pictureUrl
-                            })
                         })
+                        .then(ref => { 
+                            console.log(ref)
+                            line.client.getProfile(data.source.userId).then((profile)=>{ 
+                                console.log(profile)
+                                console.log(ref.id)
+                                userRef.doc(ref.id).update({
+                                    displayName: profile.displayName,
+                                    pictureUrl: profile.pictureUrl
+                                })
+                            })
                         .then((writeResult) => {
                             console.log("Update profile success")
                             // return;
