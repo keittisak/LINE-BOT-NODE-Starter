@@ -99,6 +99,8 @@ function recieveMessageHandleEvent(data) {
                         return conversationRef.add(_data)
                             .then(ref => { 
                                 // console.log(ref)
+                                console.log('return');
+                                console.log({"id": ref.id, "data": data})
                                 return {"id": ref.id, "data": data};
                             })
                     }else{
