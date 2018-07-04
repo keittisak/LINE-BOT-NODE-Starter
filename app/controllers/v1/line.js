@@ -63,13 +63,19 @@ function recieveMessageHandleEvent(data) {
                     })
                     .then(ref => { 
                         line.client.getProfile(data.source.userId).then((profile)=>{ 
-                            // console.log(profile)
+                            console.log(profile)
                             userRef.doc(ref.id).update({
                                 displayName: profile.displayName,
                                 pictureUrl: profile.pictureUrl
                             })
                         })
-                        return; 
+                        .then((writeResult) => {
+                            console.log("Update profile success")
+                            // return;
+                        })
+                        .catch(err => {
+                            console.log('Error update profile', err);
+                        });
                     })
                     .catch(err => {
                         console.log('Error add documents', err);
