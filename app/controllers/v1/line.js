@@ -83,7 +83,7 @@ function recieveMessageHandleEvent(data) {
         .then(user => {
             //console.log(user);
             senderUser = user.id;
-            //get message
+            //get previous message
             conversationUsers = [currentUser, senderUser];
             return conversationRef
                 .where('users', '==', conversationUsers)
@@ -92,7 +92,7 @@ function recieveMessageHandleEvent(data) {
                     if (snapshot.size === 0) {
                         var _data = {
                             created: Date.now(),
-                            users: [currentUser, ref.id],
+                            users: conversationUsers,
                             messages: []
                         }
                         //create new conversation
