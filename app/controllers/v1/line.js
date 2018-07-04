@@ -64,6 +64,7 @@ function recieveMessageHandleEvent(data) {
                     .then(ref => { 
                         line.client.getProfile(data.source.userId).then((profile)=>{ 
                             console.log(profile)
+                            console.log(ref.id)
                             userRef.doc(ref.id).update({
                                 displayName: profile.displayName,
                                 pictureUrl: profile.pictureUrl
