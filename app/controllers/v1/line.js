@@ -12,7 +12,7 @@ exports.recieve = (req, res)=>{
         .catch((err) => {
             console.error(err);
             res.status(500).end();
-    });
+        });
 };
 
 exports.send = (req, res)=>{
@@ -25,7 +25,7 @@ exports.send = (req, res)=>{
         .catch((err) => {
             console.error(err);
             res.status(500).end();
-    });
+        });
 }
 
 // event handler
@@ -46,10 +46,7 @@ function recieveMessageHandleEvent(data) {
         .where('channel', '==', 'line')
         .get()
         .then(snapshot => {
-            line.client.getProfile(data.source.userId).then((profile)=>{ console.log(profile)})
             if (snapshot.size === 0) {
-                //get profile from line
-
                 //create new user
                 var _data = {
                     channel: 'line',
@@ -65,6 +62,13 @@ function recieveMessageHandleEvent(data) {
                             messages: []
                     })
                     .then(ref => { 
+                        line.client.getProfile(data.source.userId).then((profile)=>{ 
+                            // console.log(profile)
+                            userRef.doc(ref.id).update({
+                                displayName: profile.displayName,
+                                pictureUrl: profile.pictureUrl
+                            })
+                        })
                         return; 
                     })
                     .catch(err => {
