@@ -55,35 +55,21 @@ function recieveMessageHandleEvent(data) {
                 return userRef
                     .add(_data)
                     .then(ref => {
-                        //create new conversation
-                        conversationRef.add({
-                            created: Date.now(),
-                            users: [currentUser, ref.id],
-                            messages: []
-                        })
-                        .then(ref => { 
-                            console.log(ref)
-                            line.client.getProfile(data.source.userId).then((profile)=>{ 
-                                console.log(profile)
-                                console.log(ref.id)
-                                userRef.doc(ref.id).update({
-                                    displayName: profile.displayName,
-                                    pictureUrl: profile.pictureUrl
-                                })
+                        console.log(ref)
+                        //update profile
+                        line.client.getProfile(data.source.userId).then((profile)=>{ 
+                            console.log(profile)
+                            console.log(ref.id)
+                            userRef.doc(ref.id).update({
+                                displayName: profile.displayName,
+                                pictureUrl: profile.pictureUrl
                             })
-                        .then((writeResult) => {
-                            console.log("Update profile success")
-                            // return;
-                        })
-                        .catch(err => {
-                            console.log('Error update profile', err);
-                        });
+                        })            
+                        return {"id": ref.id, "data": data};
                     })
                     .catch(err => {
-                        console.log('Error add documents', err);
+                        console.log('Error add user', err);
                     });
-                    return {"id": ref.id, "data": data};
-                })
             }else{
                 var userIds = [];
                 var userDatas = [];
@@ -103,16 +89,30 @@ function recieveMessageHandleEvent(data) {
                 .where('users', '==', conversationUsers)
                 .get()
                 .then(snapshot => {
-                    var conversationIds = [];
-                    var conversationDatas = [];
-                    snapshot.forEach(doc => {
-                        conversationIds.push(doc.id);
-                        conversationDatas.push(doc.data());
-                    });
-                    return {"id": conversationIds[0], "data": conversationDatas[0]};
+                    if (snapshot.size === 0) {
+                        var _data = {
+                            created: Date.now(),
+                            users: [currentUser, ref.id],
+                            messages: []
+                        }
+                        //create new conversation
+                        return conversationRef.add(_data)
+                            .then(ref => { 
+                                // console.log(ref)
+                                return {"id": ref.id, "data": data};
+                            })
+                    }else{
+                        var conversationIds = [];
+                        var conversationDatas = [];
+                        snapshot.forEach(doc => {
+                            conversationIds.push(doc.id);
+                            conversationDatas.push(doc.data());
+                        });
+                        return {"id": conversationIds[0], "data": conversationDatas[0]};
+                    }
                 })
                 .catch(err => {
-                    console.log('Error getting documents', err);
+                    console.log('Error getting conversation', err);
                 });
         })
         .then(conversation => {
@@ -131,11 +131,11 @@ function recieveMessageHandleEvent(data) {
                 // return;
             })
             .catch(err => {
-                console.log('Error update documents', err);
+                console.log('Error update conversation', err);
             });
         })
         .catch(err => {
-            console.log('Error getting documents', err);
+            console.log('Error in process', err);
         });
 
     // // create a echoing text message
