@@ -116,7 +116,8 @@ function recieveMessageHandleEvent(data) {
                 });
         })
         .then(conversation => {
-            //console.log(conversation);
+            console.log('update conversation');
+            console.log(conversation);
             var _data = {
                 created: Date.now(),
                 id: uuidv4(),
