@@ -90,6 +90,7 @@ function recieveMessageHandleEvent(data) {
                 .get()
                 .then(snapshot => {
                     if (snapshot.size === 0) {
+                        console.log('create new conversation')
                         var _data = {
                             created: Date.now(),
                             users: conversationUsers,
@@ -104,6 +105,7 @@ function recieveMessageHandleEvent(data) {
                                 return {"id": ref.id, "data": data};
                             })
                     }else{
+                        console.log('get previous conversation')
                         var conversationIds = [];
                         var conversationDatas = [];
                         snapshot.forEach(doc => {
