@@ -65,7 +65,7 @@ function recieveMessageHandleEvent(data) {
                                 pictureUrl: profile.pictureUrl
                             })
                         })            
-                        return {"id": ref.id, "data": data};
+                        return {"id": ref.id, "data": _data};
                     })
                     .catch(err => {
                         console.log('Error add user', err);
@@ -101,8 +101,8 @@ function recieveMessageHandleEvent(data) {
                             .then(ref => { 
                                 // console.log(ref)
                                 console.log('return');
-                                console.log({"id": ref.id, "data": ref.data()})
-                                return {"id": ref.id, "data": ref.data()};
+                                console.log({"id": ref.id, "data": _data})
+                                return {"id": ref.id, "data": _data};
                             })
                     }else{
                         console.log('get previous conversation')
