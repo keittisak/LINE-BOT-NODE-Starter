@@ -30,9 +30,10 @@ exports.send = (req, res)=>{
 
 // event handler
 function recieveMessageHandleEvent(data) {
-    if (data.type !== 'message' || data.message.type !== 'text') {
-      // ignore non-text-message event
-      return Promise.resolve(null);
+    if (data.type !== 'message' || data.message.type !== 'text' || data.source.type !== 'user') {
+        // system not support group
+        // ignore non-text-message event
+        return Promise.resolve(null);
     }
     
     //save data to firestore
