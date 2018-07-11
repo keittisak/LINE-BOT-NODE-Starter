@@ -5,6 +5,7 @@ var lineId;
 
 exports.recieve = (req, res)=>{
     console.log(req.body.events);
+    lineId = req.params.id;
     data = req.body.events;
     // recieve message from line and save to firestore
     Promise
