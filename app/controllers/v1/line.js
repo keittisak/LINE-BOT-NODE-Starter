@@ -106,7 +106,7 @@ async function recieveMessageHandleEvent(data) {
         updatedAt: Date.now()
     });
     console.log('create new message success');
-    return;
+    return {success: 1};
 }
 
 // event handler
@@ -116,5 +116,5 @@ async function sendMessageHandleEvent(data) {
     // use push API
     result = await line.client[lineId].pushMessage(data.userId, { type: data.type, text: data.msg });
     console.log('send message success');
-    return;
+    return {success: 1};
 }
