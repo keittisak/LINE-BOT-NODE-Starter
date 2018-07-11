@@ -1,11 +1,36 @@
 const line = require('@line/bot-sdk');
-// create LINE SDK config from env variables
-const config = {
-    channelAccessToken: process.env.CHANNEL_ACCESS_TOKEN,
-    channelSecret: process.env.CHANNEL_SECRET,
-};
-// create LINE SDK client
-const client = new line.Client(config);
+const firebase = require('./firebase');
+const db = firebase.firestore;
 
-exports.client = client;
-exports.middleware = line.middleware(config);
+module.exports = ()=>{
+    // create LINE SDK config from env variables
+    let clients = [];
+    let middlewares = [];
+    let configs = [];
+    let channelRef = db.collection('channels');
+    return new Promise((resolve, reject) => {
+        channelRef
+            .where('provider', '==', 'line')
+            .get()
+            .then(snapshot => {
+                if (snapshot.size > 0) {
+                    snapshot.forEach(doc => {
+                        let config = {
+                            id: doc.id,
+                            channelId: doc.data().id,
+                            channelAccessToken: doc.data().accessToken,
+                            channelSecret: doc.data().secret
+                        }
+                        configs[config.channelId] = config;
+
+                        let client = new line.Client(config);
+                        clients[config.channelId] = client;
+
+                        let middleware = line.middleware(config);
+                        middlewares[config.channelId] = middleware;
+                    });
+                    resolve({"client": clients, "middleware": middlewares, "config": configs});
+                }
+            })   
+    })
+}

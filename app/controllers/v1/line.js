@@ -1,14 +1,15 @@
-const line = require('../../../config/line');
-const firebase = require('../../../config/firebase');
-const uuidv4 = require('uuid/v4');
-const db = firebase.firestore;
+var firebase = require('../../../config/firebase');
+var db = firebase.firestore;
+var line = {};
+var lineId;
 
 exports.recieve = (req, res)=>{
     console.log(req.body.events);
+    data = req.body.events;
     // recieve message from line and save to firestore
     Promise
-        .all(req.body.events.map(recieveMessageHandleEvent))
-        .then((result) => res.json(result))
+        .all(data.map(recieveMessageHandleEvent))
+        .then((result) => {res.json(result)})
         .catch((err) => {
             console.error(err);
             res.status(500).end();
@@ -17,6 +18,7 @@ exports.recieve = (req, res)=>{
 
 exports.send = (req, res)=>{
     console.log(req.body);
+    lineId = req.params.id;
     data = [req.body];
     // recieve message from app and send to line
     Promise
@@ -29,134 +31,89 @@ exports.send = (req, res)=>{
 }
 
 // event handler
-function recieveMessageHandleEvent(data) {
+async function recieveMessageHandleEvent(data) {
+    line = await require('../../../config/line')();
+
     if (data.type !== 'message' || data.message.type !== 'text' || data.source.type !== 'user') {
         // system not support group
         // ignore non-text-message event
         return Promise.resolve(null);
     }
-    
-    //save data to firestore
-    var currentUser = 'DBvYKBUok0GKUob3vxjo';
-    var senderUser = '';
-    var userRef = db.collection('users');
-    var conversationRef = db.collection('conversations');
-    return userRef
-        //check user exist
-        .where('id', '==', data.source.userId)
-        .where('channel', '==', 'line')
-        .get()
-        .then(snapshot => {
-            if (snapshot.size === 0) {
-                //create new user
-                var _data = {
-                    channel: 'line',
-                    id: data.source.userId
-                };
-                return userRef
-                    .add(_data)
-                    .then(ref => {
-                        console.log(ref.id)
-                        //update profile
-                        line.client.getProfile(data.source.userId).then((profile)=>{ 
-                            console.log(profile)
-                            console.log(ref.id)
-                            userRef.doc(ref.id).update({
-                                displayName: profile.displayName,
-                                pictureUrl: profile.pictureUrl
-                            })
-                        })            
-                        return {"id": ref.id, "data": _data};
-                    })
-                    .catch(err => {
-                        console.log('Error add user', err);
-                    });
-            }else{
-                var userIds = [];
-                var userDatas = [];
-                snapshot.forEach(doc => {
-                    userIds.push(doc.id);
-                    userDatas.push(doc.data());
-                });
-                return {"id": userIds[0], "data": userDatas[0]};
-            }
-        })
-        .then(user => {
-            //console.log(user);
-            senderUser = user.id;
-            //get previous message
-            conversationUsers = [currentUser, senderUser];
-            return conversationRef
-                .where('users', '==', conversationUsers)
-                .get()
-                .then(snapshot => {
-                    if (snapshot.size === 0) {
-                        console.log('create new conversation')
-                        var _data = {
-                            created: Date.now(),
-                            users: conversationUsers,
-                            messages: []
-                        }
-                        //create new conversation
-                        return conversationRef.add(_data)
-                            .then(ref => { 
-                                // console.log(ref)
-                                console.log('return');
-                                console.log({"id": ref.id, "data": _data})
-                                return {"id": ref.id, "data": _data};
-                            })
-                    }else{
-                        console.log('get previous conversation')
-                        var conversationIds = [];
-                        var conversationDatas = [];
-                        snapshot.forEach(doc => {
-                            conversationIds.push(doc.id);
-                            conversationDatas.push(doc.data());
-                        });
-                        return {"id": conversationIds[0], "data": conversationDatas[0]};
-                    }
-                })
-                .catch(err => {
-                    console.log('Error getting conversation', err);
-                });
-        })
-        .then(conversation => {
-            console.log('update conversation');
-            console.log(conversation);
-            var _data = {
-                created: Date.now(),
-                id: uuidv4(),
-                text: data.message.text, 
-                sender: senderUser
-            }
-            return conversationRef.doc(conversation.id).update({
-                messages: [...conversation.data.messages, _data]
-            })
-            .then((writeResult) => {
-                console.log("Process event success")
-                // return;
-            })
-            .catch(err => {
-                console.log('Error update conversation', err);
-            });
-        })
-        .catch(err => {
-            console.log('Error in process', err);
-        });
 
-    // // create a echoing text message
-    // const echo = { type: 'text', text: data.message.text };
-  
-    // // use reply API
-    // return line.client.replyMessage(data.replyToken, echo);
+    var profile = await line.client[lineId].getProfile(data.source.userId);
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //find user
+    var userId;
+    var userRef = db.collection('users');
+    var snapshot = await userRef.where('id', '==', data.source.userId).where('channelId', '==', line.config[lineId].id).limit(1).get();
+    if (snapshot.size === 0) {
+        //create new user
+        var ref = await userRef.add({
+            id: data.source.userId,
+            channelId: line.config[lineId].id,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+        userId = ref.id;
+        console.log('create new user success');
+    }else{
+        snapshot.forEach(doc => {
+            userId = doc.id;
+            return;
+        });
+        console.log('found exist user');
+    }
+    //update user profile
+    var ref = await userRef.doc(userId).update({
+        displayName: profile.displayName,
+        pictureUrl: profile.pictureUrl,
+        updatedAt: Date.now()
+    })
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //find last conversation
+    var conversationId;
+    var conversationRef = db.collection('conversations');
+    var snapshot = await conversationRef.where('userId', '==', userId).where('channelId', '==', line.config[lineId].id).limit(1).get();
+    if (snapshot.size === 0) {
+        //create new conversation
+        var ref = await conversationRef.add({
+            userId: userId,
+            channelId: line.config[lineId].id,
+            createdAt: Date.now(),
+            updatedAt: Date.now()
+        });
+        conversationId = ref.id;
+        console.log('create new conversation success');
+    }else{
+        snapshot.forEach(doc => {
+            conversationId = doc.id;
+            return;
+        });
+        console.log('found exist conversation');
+    }
+
+    //add new messages
+    var messageId;
+    var messageRef = db.collection('conversations').doc(conversationId).collection('messages');
+     //create new message
+    ref = await messageRef.add({
+        senderId: userId,
+        senderType: 'user',
+        text: data.message.text,
+        isRead: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    });
+    console.log('create new message success');
+    return;
 }
 
 // event handler
-function sendMessageHandleEvent(data) {
-    console.log(data.userId);
-    console.log(data.type);
-    console.log(data.msg);
+async function sendMessageHandleEvent(data) {
+    line = await require('../../../config/line')();
 
     // use push API
-    return line.client.pushMessage(data.userId, { type: data.type, text: data.msg });
+    result = await line.client[lineId].pushMessage(data.userId, { type: data.type, text: data.msg });
+    console.log('send message success');
+    return;
 }

@@ -1,8 +1,10 @@
-module.exports = ()=>{
-    const express = require('express');
-    const bodyParser = require('body-parser');
-    const line = require('./line');
-    
+var express = require('express');
+var bodyParser = require('body-parser');
+var line = {};
+
+module.exports = async ()=>{
+    line = await require('./line')();
+ 
     // create Express app
     // about Express itself: https://expressjs.com/
     const app = express();
@@ -11,7 +13,10 @@ module.exports = ()=>{
     const v1 = express.Router();
     // const v2 = express.Router();
 
-    app.use('/lines/recieve', line.middleware)
+    app.use('/lines/:id/recieve', function(req, res, next){
+        line.middleware[req.params.id];
+    })
+
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({
         extended:true

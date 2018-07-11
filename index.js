@@ -1,6 +1,13 @@
-const express = require('./config/express');
-const app = express();
-const port = process.env.PORT || 3000;
-app.listen(port);
-module.exports = app;
-console.log('listening on ' + port);
+var express = require('./config/express');
+var app = {};
+var port = process.env.PORT || 3000;
+
+async function main(){
+    app = await express();
+    app.listen(port);
+    console.log('listening on ' + port);
+}
+main();
+
+
+
