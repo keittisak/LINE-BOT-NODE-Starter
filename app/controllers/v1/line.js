@@ -4,7 +4,7 @@ var line = {};
 var lineId;
 
 exports.recieve = (req, res)=>{
-    console.log(req.body.events);
+    //console.log(req.body.events);
     lineId = req.params.id;
     data = req.body.events;
     // recieve message from line and save to firestore
@@ -34,14 +34,22 @@ exports.send = (req, res)=>{
 // event handler
 async function recieveMessageHandleEvent(data) {
     line = await require('../../../config/line')();
-
     if (data.type !== 'message' || data.message.type !== 'text' || data.source.type !== 'user') {
         // system not support group
         // ignore non-text-message event
-        return Promise.resolve(null);
+        return {success: 0};
     }
 
-    var profile = await line.client[lineId].getProfile(data.source.userId);
+    //get profile from line
+    var profile;
+    try {
+        profile = await line.client[lineId].getProfile(data.source.userId);
+    } catch (error) {
+        profile = {
+            displayName: "",
+            pictureUrl: ""
+        }
+    }
     ///////////////////////////////////////////////////////////////////////////////////////
     //find user
     var userId;
