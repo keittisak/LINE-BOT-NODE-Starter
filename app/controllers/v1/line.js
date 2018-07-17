@@ -89,7 +89,8 @@ async function recieveMessageHandleEvent(data) {
             userId: userId,
             channelId: line.config[lineId].id,
             createdAt: Date.now(),
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
+            unreadCount: 0
         });
         conversationId = ref.id;
         console.log('create new conversation success');
@@ -104,8 +105,8 @@ async function recieveMessageHandleEvent(data) {
     //add new messages
     var messageId;
     var messageRef = db.collection('conversations').doc(conversationId).collection('messages');
-     //create new message
-    ref = await messageRef.add({
+    //create new message
+    var ref = await messageRef.add({
         senderId: userId,
         senderType: 'user',
         text: data.message.text,
@@ -114,6 +115,16 @@ async function recieveMessageHandleEvent(data) {
         updatedAt: Date.now()
     });
     console.log('create new message success');
+    //find unread message
+    var snapshot = await messageRef.where('isRead', '==' ,false).get();
+    var unreadCount = snapshot.size;
+    //update conversation
+    var ref = db.collection('conversations').doc(conversationId).update({
+        updatedAt: Date.now(),
+        unreadCount: unreadCount
+    })
+    console.log('update conversation success');
+    
     return {success: 1};
 }
 
