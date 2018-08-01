@@ -30,6 +30,7 @@ module.exports = async ()=>{
 
     require('../app/routes/v1/index')(v1);
     require('../app/routes/v1/customer')(v1);
+    require('../app/routes/v1/order')(v1);
     require('../app/routes/v1/line')(v1);
     // require('../app/routes/v1/facebook')(v1);
 
